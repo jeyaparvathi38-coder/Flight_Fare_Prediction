@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Authentication - SkyFare.Aero{% endblock %}
+
+{% block content %}
+<div class="container animate-fade-in flex-center" style="min-height: 70vh;">
+    <div class="glass glass-card" style="width: 100%; max-width: 450px; position: relative;">
+        <!-- Toggle Buttons -->
+        <div style="display: flex; margin-bottom: 2rem; border-radius: 0.5rem; overflow: hidden; background: rgba(0,0,0,0.05);">
+            <button id="show-login" class="btn" style="flex: 1; border-radius: 0; background: var(--primary); color: white;">Login</button>
+            <button id="show-register" class="btn" style="flex: 1; border-radius: 0; background: transparent;">Register</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form">
+            <h2 style="margin-bottom: 1.5rem; text-align: center;">Welcome Back</h2>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="login-email" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" id="login-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="login-btn">
+                Login <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
+            </button>
+        </form>
+
+        <!-- Register Form (Hidden initially) -->
+        <form id="register-form" style="display: none;">
+            <h2 style="margin-bottom: 1.5rem; text-align: center;">Create Account</h2>
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-control" id="reg-username" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="reg-email" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" id="reg-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="reg-btn">
+                Register <i class="fas fa-user-plus" style="margin-left: 0.5rem;"></i>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const showLoginBtn = document.getElementById('show-login');
+    const showRegisterBtn = document.getElementById('show-register');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+
+    showLoginBtn.addEventListener('click', () => {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+        showLoginBtn.style.background = 'var(--primary)';
+        showLoginBtn.style.color = 'white';
+        showRegisterBtn.style.background = 'transparent';
+        showRegisterBtn.style.color = 'inherit';
+    });
+
+    showRegisterBtn.addEventListener('click', () => {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+        showRegisterBtn.style.background = 'var(--primary)';
+        showRegisterBtn.style.color = 'white';
+        showLoginBtn.style.background = 'transparent';
+        showLoginBtn.style.color = 'inherit';
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('login-btn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        const data = {
+            email: document.getElementById('login-email').value,
+            password: document.getElementById('login-password').value
+        };
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            
+            if (res.ok) {
+                window.location.href = '/predict';
+            } else {
+                showToast(result.error || "Login failed", "error");
+            }
+        } catch(err) {
+            showToast("Server error", "error");
+        } finally {
+            btn.innerHTML = 'Login <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>';
+        }
+    });
+
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('reg-btn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        const data = {
+            username: document.getElementById('reg-username').value,
+            email: document.getElementById('reg-email').value,
+            password: document.getElementById('reg-password').value
+        };
+
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            
+            if (res.ok) {
+                showToast("Registration successful! Please login.");
+                showLoginBtn.click();
+            } else {
+                showToast(result.error || "Registration failed", "error");
+            }
+        } catch(err) {
+            showToast("Server error", "error");
+        } finally {
+            btn.innerHTML = 'Register <i class="fas fa-user-plus" style="margin-left: 0.5rem;"></i>';
+        }
+    });
+</script>
+{% endblock %}

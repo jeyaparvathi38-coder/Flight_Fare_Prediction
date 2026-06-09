@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container animate-fade-in">
+    <!-- Hero Section -->
+    <div class="glass glass-card" style="text-align: center; padding: 4rem 2rem; margin-bottom: 4rem; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(6,182,212,0.1) 0%, rgba(0,0,0,0) 50%); pointer-events: none; animation: float 10s infinite linear;"></div>
+        
+        <h1 style="font-size: 3.5rem; margin-bottom: 1.5rem;">
+            Predict Flight Ticket Prices <br>
+            <span class="gradient-text">with SkyFare.Aero</span>
+        </h1>
+        <p style="font-size: 1.25rem; color: var(--text-muted-light); margin-bottom: 2.5rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+            Get accurate flight fare predictions using advanced machine learning algorithms. Plan your trips smarter and save money by knowing when to book.
+        </p>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{{ url_for('predict_page') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                <i class="fas fa-magic" style="margin-right: 0.5rem;"></i> Predict Fare
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                <i class="fas fa-chart-pie" style="margin-right: 0.5rem;"></i> Explore Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="grid grid-cols-3" style="margin-bottom: 4rem;">
+        <div class="glass glass-card" style="text-align: center;">
+            <i class="fas fa-database gradient-text" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
+            <h3 style="font-size: 2rem; margin-bottom: 0.5rem;" class="counter" data-target="10683">0</h3>
+            <p style="color: var(--text-muted-light);">Total Flight Records</p>
+        </div>
+        <div class="glass glass-card" style="text-align: center;">
+            <i class="fas fa-plane gradient-text" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
+            <h3 style="font-size: 2rem; margin-bottom: 0.5rem;" class="counter" data-target="12">0</h3>
+            <p style="color: var(--text-muted-light);">Airlines Covered</p>
+        </div>
+        <div class="glass glass-card" style="text-align: center;">
+            <i class="fas fa-bullseye gradient-text" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
+            <h3 style="font-size: 2rem; margin-bottom: 0.5rem;"><span class="counter" data-target="83">0</span>%</h3>
+            <p style="color: var(--text-muted-light);">Prediction Accuracy (R²)</p>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem;">Why <span class="gradient-text">SkyFare.Aero</span>?</h2>
+    <div class="grid grid-cols-3" style="margin-bottom: 4rem;">
+        <div class="glass glass-card">
+            <i class="fas fa-robot gradient-text" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 1rem;">AI Powered Prediction</h3>
+            <p style="color: var(--text-muted-light);">Utilizes a highly optimized Random Forest Regressor trained on thousands of historical flights to give you real-time fare estimates.</p>
+        </div>
+        <div class="glass glass-card">
+            <i class="fas fa-bolt gradient-text" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 1rem;">Instant Results</h3>
+            <p style="color: var(--text-muted-light);">Get immediate predictions with smart validation and comprehensive breakdowns of your selected flight itinerary.</p>
+        </div>
+        <div class="glass glass-card">
+            <i class="fas fa-chart-line gradient-text" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 1rem;">Smart Analytics</h3>
+            <p style="color: var(--text-muted-light);">Dive deep into our interactive dashboard to visualize pricing trends across different airlines, sources, and destinations.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Counter Animation
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+
+    counters.forEach(counter => {
+        const updateCount = () => {
+            const target = +counter.getAttribute('data-target');
+            const count = +counter.innerText;
+            const inc = target / speed;
+
+            if (count < target) {
+                counter.innerText = Math.ceil(count + inc);
+                setTimeout(updateCount, 10);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        updateCount();
+    });
+</script>
+{% endblock %}

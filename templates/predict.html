@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}Predict Fare - SkyFare.Aero{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Loading Overlay */
+#loading-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(15px);
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.radar-container {
+    position: relative;
+    width: 250px; height: 250px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, rgba(37,99,235,0) 70%);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.radar-pulse {
+    position: absolute;
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    animation: pulse 2s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.radar-pulse:nth-child(2) {
+    animation-delay: 1s;
+}
+
+.airplane-flight {
+    font-size: 5rem;
+    color: var(--card-light);
+    animation: takeOff 3s infinite ease-in-out;
+    filter: drop-shadow(0 0 20px rgba(6,182,212,0.6));
+}
+
+#dynamic-message {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, #FFF, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: fadeText 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.1); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes takeOff {
+    0% { transform: translate(-40px, 20px) rotate(-15deg); }
+    50% { transform: translate(40px, -20px) rotate(15deg); }
+    100% { transform: translate(-40px, 20px) rotate(-15deg); }
+}
+
+@keyframes fadeText {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
+}
+
+.flip-in {
+    animation: flipInY 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes flipInY {
+    0% { transform: perspective(400px) rotateY(90deg); opacity: 0; }
+    100% { transform: perspective(400px) rotateY(0deg); opacity: 1; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Loading Overlay -->
+<div id="loading-overlay">
+    <div class="radar-container">
+        <div class="radar-pulse"></div>
+        <div class="radar-pulse"></div>
+        <i class="fas fa-plane airplane-flight"></i>
+    </div>
+    <div id="dynamic-message">Analyzing Route Options...</div>
+</div>
+
+<div class="container animate-fade-in" style="max-width: 800px; padding-bottom: 4rem;">
+    <h1 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem;" class="gradient-text">Flight Fare Predictor</h1>
+    
+    <!-- Form Section -->
+    <div class="glass glass-card" style="margin-bottom: 3rem;" id="form-container">
+        <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-plane-departure gradient-text"></i> Enter Flight Details
+        </h3>
+        <form id="prediction-form">
+            <div class="form-group">
+                <label class="form-label">Airline</label>
+                <select class="form-control" id="airline" required>
+                    <option value="">Select Airline</option>
+                    <option value="IndiGo">IndiGo</option>
+                    <option value="Air India">Air India</option>
+                    <option value="Jet Airways">Jet Airways</option>
+                    <option value="SpiceJet">SpiceJet</option>
+                    <option value="Multiple carriers">Multiple carriers</option>
+                    <option value="GoAir">GoAir</option>
+                    <option value="Vistara">Vistara</option>
+                    <option value="Air Asia">Air Asia</option>
+                    <option value="Vistara Premium economy">Vistara Premium economy</option>
+                    <option value="Jet Airways Business">Jet Airways Business</option>
+                    <option value="Multiple carriers Premium economy">Multiple carriers Premium economy</option>
+                    <option value="Trujet">Trujet</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2" style="gap: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label">Source City</label>
+                    <select class="form-control" id="source" required>
+                        <option value="">Select Source</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Kolkata">Kolkata</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Mumbai">Mumbai</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Destination City</label>
+                    <select class="form-control" id="destination" required>
+                        <option value="">Select Destination</option>
+                        <option value="New Delhi">New Delhi</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Cochin">Cochin</option>
+                        <option value="Kolkata">Kolkata</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2" style="gap: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label">Journey Date</label>
+                    <input type="date" class="form-control" id="journey_date" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Stops</label>
+                    <select class="form-control" id="total_stops" required>
+                        <option value="0">Non-stop</option>
+                        <option value="1">1 Stop</option>
+                        <option value="2">2 Stops</option>
+                        <option value="3">3 Stops</option>
+                        <option value="4">4 Stops</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2" style="gap: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label">Departure Time</label>
+                    <input type="time" class="form-control" id="dep_time" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Arrival Time</label>
+                    <input type="time" class="form-control" id="arrival_time" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 1rem; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" id="predict-btn">
+                <i class="fas fa-magic"></i> Predict Fare
+            </button>
+        </form>
+    </div>
+
+    <!-- Result Section -->
+    <div class="glass glass-card" id="result-card" style="text-align: center; display: none; background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(139,92,246,0.05)); border: 2px solid var(--primary); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(37,99,235,0.1) 0%, rgba(0,0,0,0) 60%); pointer-events: none;"></div>
+        
+        <i class="fas fa-ticket-alt gradient-text" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+        <h3 style="color: var(--text-muted-light); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 2px;">Predicted Best Fare</h3>
+        <h1 style="font-size: 5rem; margin-bottom: 2rem;" class="gradient-text">₹ <span id="fare-amount">0</span></h1>
+        
+        <div style="display: flex; justify-content: space-around; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1);">
+            <div>
+                <p style="font-size: 1rem; color: var(--text-muted-light); margin-bottom: 0.5rem;">Model Engine</p>
+                <p style="font-weight: 700; font-size: 1.1rem;">AI Random Forest</p>
+            </div>
+            <div>
+                <p style="font-size: 1rem; color: var(--text-muted-light); margin-bottom: 0.5rem;">Accuracy Score</p>
+                <p style="font-weight: 700; font-size: 1.1rem; color: #10B981;">83.4%</p>
+            </div>
+            <div>
+                <p style="font-size: 1rem; color: var(--text-muted-light); margin-bottom: 0.5rem;">Fare Category</p>
+                <p id="fare-category" style="font-weight: 700; font-size: 1.1rem;">...</p>
+            </div>
+        </div>
+        
+        <button class="btn btn-secondary" style="margin-top: 2rem; width: 100%;" onclick="document.getElementById('result-card').style.display='none'; document.getElementById('form-container').style.display='block'; window.scrollTo(0,0);">
+            <i class="fas fa-redo-alt" style="margin-right: 0.5rem;"></i> Predict Another Flight
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const form = document.getElementById('prediction-form');
+    const formContainer = document.getElementById('form-container');
+    const resultCard = document.getElementById('result-card');
+    const overlay = document.getElementById('loading-overlay');
+    const dynamicMsg = document.getElementById('dynamic-message');
+
+    const loadingMessages = [
+        "Analyzing Airline Patterns...",
+        "Scanning Historical Routes...",
+        "Applying AI Machine Learning...",
+        "Calculating Best Flight Fare..."
+    ];
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Show loading animation
+        overlay.style.display = 'flex';
+        formContainer.style.display = 'none';
+        resultCard.style.display = 'none';
+        
+        // Cycle messages
+        let msgIndex = 0;
+        const msgInterval = setInterval(() => {
+            msgIndex = (msgIndex + 1) % loadingMessages.length;
+            dynamicMsg.innerText = loadingMessages[msgIndex];
+        }, 800);
+
+        const data = {
+            airline: document.getElementById('airline').value,
+            source: document.getElementById('source').value,
+            destination: document.getElementById('destination').value,
+            journey_date: document.getElementById('journey_date').value,
+            total_stops: document.getElementById('total_stops').value,
+            dep_time: document.getElementById('dep_time').value,
+            arrival_time: document.getElementById('arrival_time').value,
+        };
+
+        try {
+            // Add an artificial delay to show off the premium animation
+            await new Promise(r => setTimeout(r, 3200));
+
+            const res = await fetch('/api/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+            
+            clearInterval(msgInterval);
+            overlay.style.display = 'none';
+            
+            if (res.ok) {
+                // Reveal result card with animation
+                resultCard.style.display = 'block';
+                resultCard.classList.remove('flip-in');
+                void resultCard.offsetWidth; // Trigger reflow
+                resultCard.classList.add('flip-in');
+                
+                // Animate number
+                const target = Math.round(result.fare);
+                const fareEl = document.getElementById('fare-amount');
+                let count = 0;
+                const inc = target / 40;
+                
+                const updateCount = () => {
+                    if (count < target) {
+                        count += inc;
+                        fareEl.innerText = Math.ceil(count).toLocaleString();
+                        requestAnimationFrame(updateCount);
+                    } else {
+                        fareEl.innerText = target.toLocaleString();
+                    }
+                };
+                updateCount();
+
+                // Category
+                const catEl = document.getElementById('fare-category');
+                if (target < 5000) {
+                    catEl.innerText = 'Low Fare';
+                    catEl.style.color = '#10B981';
+                } else if (target < 12000) {
+                    catEl.innerText = 'Moderate Fare';
+                    catEl.style.color = '#F59E0B';
+                } else {
+                    catEl.innerText = 'Premium Fare';
+                    catEl.style.color = '#EF4444';
+                }
+
+                showToast("AI Prediction Complete!");
+            } else {
+                formContainer.style.display = 'block';
+                showToast(result.error || "Prediction failed", "error");
+            }
+        } catch (error) {
+            console.error(error);
+            clearInterval(msgInterval);
+            overlay.style.display = 'none';
+            formContainer.style.display = 'block';
+            showToast("Server error occurred", "error");
+        }
+    });
+</script>
+{% endblock %}

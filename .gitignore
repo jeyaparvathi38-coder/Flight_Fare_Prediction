@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+instance/
+skyfare.db
+.ipynb_checkpoints/
+.vscode/
+flight_fare_model.pkl

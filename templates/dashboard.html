@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SkyFare.Aero{% endblock %}
+
+{% block content %}
+<div class="container animate-fade-in">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 class="gradient-text">Dataset Dashboard</h1>
+        <div class="glass" style="padding: 0.5rem 1rem; font-size: 0.9rem; border-radius: 2rem;">
+            <i class="fas fa-database" style="color: var(--primary);"></i> Flight_Fare.xlsx
+        </div>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="grid grid-cols-4" id="stats-container" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
+        <div class="glass glass-card" style="text-align: center; padding: 1.5rem;">
+            <h4 style="color: var(--text-muted-light); margin-bottom: 0.5rem;">Total Records</h4>
+            <h2 id="stat-records" style="font-size: 2rem; color: var(--primary);">...</h2>
+        </div>
+        <div class="glass glass-card" style="text-align: center; padding: 1.5rem;">
+            <h4 style="color: var(--text-muted-light); margin-bottom: 0.5rem;">Total Features</h4>
+            <h2 id="stat-features" style="font-size: 2rem; color: var(--accent);">...</h2>
+        </div>
+        <div class="glass glass-card" style="text-align: center; padding: 1.5rem;">
+            <h4 style="color: var(--text-muted-light); margin-bottom: 0.5rem;">Unique Airlines</h4>
+            <h2 id="stat-airlines" style="font-size: 2rem; color: var(--accent-secondary);">...</h2>
+        </div>
+        <div class="glass glass-card" style="text-align: center; padding: 1.5rem;">
+            <h4 style="color: var(--text-muted-light); margin-bottom: 0.5rem;">Missing Values</h4>
+            <h2 id="stat-missing" style="font-size: 2rem; color: #10B981;">...</h2>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-2">
+        <div class="glass glass-card" style="grid-column: span 2;">
+            <div id="airline-chart" style="width: 100%; height: 400px;"></div>
+        </div>
+        <div class="glass glass-card">
+            <div id="source-chart" style="width: 100%; height: 400px;"></div>
+        </div>
+        <div class="glass glass-card">
+            <div id="dest-chart" style="width: 100%; height: 400px;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Fetch stats
+    fetch('/api/dashboard/stats')
+        .then(res => res.json())
+        .then(data => {
+            if(data.error) {
+                showToast("Error loading stats", "error");
+                return;
+            }
+            document.getElementById('stat-records').innerText = data.total_records.toLocaleString();
+            document.getElementById('stat-features').innerText = data.total_features;
+            document.getElementById('stat-airlines').innerText = data.unique_airlines;
+            document.getElementById('stat-missing').innerText = data.missing_values;
+        })
+        .catch(err => {
+            console.error(err);
+            showToast("Failed to fetch dashboard stats", "error");
+        });
+</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

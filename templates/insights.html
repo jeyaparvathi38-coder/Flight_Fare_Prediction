@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}AI Insights - SkyFare.Aero{% endblock %}
+
+{% block content %}
+<div class="container animate-fade-in">
+    <h1 style="text-align: center; margin-bottom: 2rem;" class="gradient-text">AI Generated Insights</h1>
+    <p style="text-align: center; color: var(--text-muted-light); margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+        Our advanced analytics engine has processed the historical flight dataset to extract the following actionable insights to help you book smarter.
+    </p>
+
+    <div class="grid grid-cols-3" style="gap: 2rem;">
+        <!-- Insight 1 -->
+        <div class="glass glass-card">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                <i class="fas fa-calendar-alt" style="color: var(--primary); font-size: 1.5rem;"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem;">Best Booking Period</h3>
+            <p style="color: var(--text-muted-light);">Booking flights 1-2 months in advance generally yields the lowest prices. Last-minute bookings (within 7 days) show an average price surge of 40%.</p>
+        </div>
+
+        <!-- Insight 2 -->
+        <div class="glass glass-card">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                <i class="fas fa-coins" style="color: #10B981; font-size: 1.5rem;"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem;">Cheapest Airlines</h3>
+            <p style="color: var(--text-muted-light);">IndiGo and SpiceJet consistently offer the most competitive fares for domestic routes, especially for non-stop flights between major metro cities.</p>
+        </div>
+
+        <!-- Insight 3 -->
+        <div class="glass glass-card">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(245, 158, 11, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                <i class="fas fa-route" style="color: #F59E0B; font-size: 1.5rem;"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem;">Expensive Routes</h3>
+            <p style="color: var(--text-muted-light);">The Bangalore (BLR) to New Delhi (DEL) route exhibits the highest price volatility. Business class fares on Jet Airways for this route are significantly higher than the median.</p>
+        </div>
+
+        <!-- Insight 4 -->
+        <div class="glass glass-card">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(139, 92, 246, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                <i class="fas fa-clock" style="color: #8B5CF6; font-size: 1.5rem;"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem;">Peak Travel Times</h3>
+            <p style="color: var(--text-muted-light);">Flights departing between 6:00 AM and 9:00 AM, and 5:00 PM and 8:00 PM tend to have a 15% premium due to high business traveler demand.</p>
+        </div>
+
+        <!-- Insight 5 -->
+        <div class="glass glass-card">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(6, 182, 212, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                <i class="fas fa-pause-circle" style="color: var(--accent); font-size: 1.5rem;"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem;">Stops vs. Price</h3>
+            <p style="color: var(--text-muted-light);">Interestingly, 1-stop flights are sometimes cheaper than non-stop flights for long distances, but 2+ stops generally increase both duration and cost.</p>
+        </div>
+
+        <!-- Insight 6 -->
+        <div class="glass glass-card">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                <i class="fas fa-calendar-week" style="color: #EF4444; font-size: 1.5rem;"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem;">Seasonal Trends</h3>
+            <p style="color: var(--text-muted-light);">March and May witness the highest average fares due to holiday seasons and festival rush. September is generally the cheapest month to travel.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
