@@ -31,9 +31,11 @@ try:
     with gzip.open(MODEL_PATH, 'rb') as f:
         model = pickle.load(f)
     print("Model loaded successfully.")
+    model_load_error = None
 except Exception as e:
     print("Error loading model:", e)
     model = None
+    model_load_error = str(e)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -112,7 +114,7 @@ def api_predict():
         
         # Predict
         if model is None:
-            return jsonify({'error': 'Model not loaded on server'}), 500
+            return jsonify({'error': f'Model not loaded on server. Details: {model_load_error}'}), 500
             
         prediction = model.predict(input_vector)[0]
         
