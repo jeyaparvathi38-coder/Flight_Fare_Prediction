@@ -1,5 +1,6 @@
 import os
 import pickle
+import gzip
 import pandas as pd
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -23,10 +24,11 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth'
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Load the ML model
-MODEL_PATH = 'flight_fare_model.pkl'
+MODEL_PATH = os.path.join(BASE_DIR, 'flight_fare_model_compressed.pkl.gz')
 try:
-    with open(MODEL_PATH, 'rb') as f:
+    with gzip.open(MODEL_PATH, 'rb') as f:
         model = pickle.load(f)
     print("Model loaded successfully.")
 except Exception as e:
@@ -122,7 +124,7 @@ def api_predict():
 def dashboard_stats():
     # Load dataset to get stats dynamically
     try:
-        df = pd.read_excel('Flight_Fare.xlsx')
+        df = pd.read_excel(os.path.join(BASE_DIR, 'Flight_Fare.xlsx'))
         stats = {
             'total_records': len(df),
             'total_features': len(df.columns),
@@ -136,7 +138,7 @@ def dashboard_stats():
 @app.route('/api/dashboard/data', methods=['GET'])
 def dashboard_data():
     try:
-        df = pd.read_excel('Flight_Fare.xlsx')
+        df = pd.read_excel(os.path.join(BASE_DIR, 'Flight_Fare.xlsx'))
         # Group by Airline for avg price
         airline_prices = df.groupby('Airline')['Price'].mean().to_dict()
         source_dist = df['Source'].value_counts().to_dict()
